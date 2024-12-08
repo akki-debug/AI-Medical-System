@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 
-header_image = Image.open("/mnt/data/A_visually_captivating_header_image_for_a_healthca.png")
+header_image = Image.open("header.jpg")
 
 st.image(header_image, use_column_width=True)
 st.markdown("<h1 style='text-align: center; color: black;'>🌟 Medical Recommendation System</h1>", unsafe_allow_html=True)
