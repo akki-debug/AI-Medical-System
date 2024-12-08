@@ -4,7 +4,6 @@ from PIL import Image
 
 # Load Images
 header_image = Image.open('header.jpg')  # Replace with your actual header image path
-team_image = Image.open('team.jpg')     # Replace with your actual team image path
 
 # Sample Medical Database (You can replace this with a real API or larger dataset)
 medical_data = {
@@ -59,14 +58,11 @@ if user_symptoms:
     else:
         st.warning("No matches found. Please check your input or consult a doctor for more accurate advice.")
 
-# Team Section
-st.subheader("Meet Our Team")
-st.image(team_image, use_column_width=True, caption="The team behind this application.")
-
 # Footer
 st.sidebar.title("Disclaimer")
 st.sidebar.write("""
 This system provides general information and is not a substitute for professional medical advice, diagnosis, or treatment. 
 Always consult your doctor or qualified healthcare provider for specific medical concerns.
 """)
+
 
