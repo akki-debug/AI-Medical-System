@@ -31,8 +31,14 @@ df = pd.DataFrame(medical_data)
 
 # App Configuration
 st.set_page_config(page_title="Medical Recommendation System", layout="wide")
-st.image(header_image, use_column_width=True)
-st.title("🌟 Medical Recommendation System")
+
+# Title Section
+st.markdown("<h1 style='text-align: center; color: black;'>🌟 Medical Recommendation System</h1>", unsafe_allow_html=True)
+
+# Header Image (Reduced Size)
+st.image(header_image, use_column_width=False, width=700)  # Adjust width as needed
+
+# Main Content
 st.write("Enter your symptoms to get general guidance and remedies.")
 
 # Input Section
