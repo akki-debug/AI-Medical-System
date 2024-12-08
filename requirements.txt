@@ -3,6 +3,4 @@ pandas
 matplotlib
 plotly
 Pillow
-hashlib
-PyPDF2
-transformers
+
