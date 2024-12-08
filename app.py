@@ -1,128 +1,66 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.express as px
-import hashlib
 from PIL import Image
-import time
 
-# User Authentication
-def make_hashes(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+# Load Images
+header_image = Image.open('header.jpg')  # Replace with your actual header image path
+team_image = Image.open('team.jpg')     # Replace with your actual team image path
 
-def check_hashes(password, hashed_text):
-    return make_hashes(password) == hashed_text
-
-# User Database (Mock)
-user_data = {
-    "username": ["admin", "user1"],
-    "password": [make_hashes("admin123"), make_hashes("password")]
+# Sample Medical Database (You can replace this with a real API or larger dataset)
+medical_data = {
+    "Symptom": ["Fever", "Cough", "Headache", "Sore Throat", "Fatigue"],
+    "Possible Condition": ["Flu, COVID-19, Malaria", "Common Cold, Bronchitis", "Migraine, Dehydration", "Tonsillitis, Flu", "Anemia, Overwork"],
+    "General Remedy": [
+        "Drink plenty of fluids, rest, take paracetamol.",
+        "Stay hydrated, use cough drops, consult if severe.",
+        "Take pain relievers, rest in a quiet place.",
+        "Gargle with warm salt water, avoid cold food.",
+        "Get enough sleep, eat balanced meals, stay hydrated."
+    ],
+    "Doctor Visit": [
+        "If fever persists for more than 3 days or is above 103°F.",
+        "If cough lasts more than 2 weeks or blood appears.",
+        "If headache is severe and sudden or with vision issues.",
+        "If throat swelling blocks breathing or severe pain persists.",
+        "If extreme fatigue doesn't improve after rest."
+    ]
 }
 
+# Convert to DataFrame for ease of use
+df = pd.DataFrame(medical_data)
+
 # App Configuration
-st.set_page_config(page_title="AI Treatment Recommendation System", layout="wide")
+st.set_page_config(page_title="Medical Recommendation System", layout="wide")
+st.image(header_image, use_column_width=True)
+st.title("🌟 Medical Recommendation System")
+st.write("Enter your symptoms to get general guidance and remedies.")
 
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-menu = st.sidebar.radio("Menu", ["Home", "Input Details", "Results", "About", "Chatbot"])
+# Input Section
+st.subheader("Input Symptoms")
+user_symptoms = st.text_input("Describe your symptoms (e.g., fever, cough):")
 
-# Authentication Logic
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
+if user_symptoms:
+    st.subheader("Recommendations")
+    # Match symptoms
+    matched_data = df[df["Symptom"].str.contains(user_symptoms, case=False)]
+    if not matched_data.empty:
+        for index, row in matched_data.iterrows():
+            st.write(f"**Symptom**: {row['Symptom']}")
+            st.write(f"**Possible Conditions**: {row['Possible Condition']}")
+            st.write(f"**General Remedy**: {row['General Remedy']}")
+            st.write(f"**When to See a Doctor**: {row['Doctor Visit']}")
+            st.markdown("---")
+    else:
+        st.warning("No matches found. Please check your input or consult a doctor for more accurate advice.")
 
-if not st.session_state["authenticated"]:
-    st.sidebar.subheader("Login")
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
-    if st.sidebar.button("Login"):
-        if username in user_data["username"]:
-            user_idx = user_data["username"].index(username)
-            if check_hashes(password, user_data["password"][user_idx]):
-                st.sidebar.success("Login successful!")
-                st.session_state["authenticated"] = True
-            else:
-                st.sidebar.error("Incorrect password.")
-        else:
-            st.sidebar.error("Username not found.")
-else:
-    st.sidebar.success("Logged in!")
+# Team Section
+st.subheader("Meet Our Team")
+st.image(team_image, use_column_width=True, caption="The team behind this application.")
 
-    # Home Page
-    if menu == "Home":
-        st.title("🌟 Welcome to the AI Treatment Recommendation System")
-        st.image("header.jpg", use_column_width=True, caption="Personalized Healthcare Powered by AI")
-        st.write("""
-        This app provides AI-based treatment recommendations tailored to your needs.
-        **Features:**
-        - Easy-to-use interface.
-        - AI-driven analysis.
-        - Personalized insights.
-        - Downloadable recommendations.
-        """)
-        st.balloons()
+# Footer
+st.sidebar.title("Disclaimer")
+st.sidebar.write("""
+This system provides general information and is not a substitute for professional medical advice, diagnosis, or treatment. 
+Always consult your doctor or qualified healthcare provider for specific medical concerns.
+""")
 
-    # Input Details Page
-    elif menu == "Input Details":
-        st.title("Enter Your Medical Details")
-        st.write("Fill in the details below:")
-        with st.form("Input Form"):
-            age = st.number_input("Age", min_value=1, max_value=120, value=30)
-            gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-            symptoms = st.text_area("Symptoms")
-            medical_history = st.text_area("Medical History")
-            report_file = st.file_uploader("Upload Medical Reports (PDFs or Images)", type=["pdf", "jpg", "png"])
-            submit = st.form_submit_button("Submit")
-
-        if submit:
-            st.success("Details submitted successfully! Navigate to the 'Results' section.")
-
-    # Results Page
-    elif menu == "Results":
-        st.title("AI Recommendations")
-        st.write("Here are the recommendations based on your data:")
-        
-        # Simulated Recommendations
-        recommendations = {
-            "Treatment": ["Therapy A", "Therapy B", "Lifestyle Changes"],
-            "Effectiveness (%)": [85, 75, 90]
-        }
-        df = pd.DataFrame(recommendations)
-
-        # Display Table
-        st.table(df)
-
-        # Bar Chart
-        fig, ax = plt.subplots()
-        ax.bar(df["Treatment"], df["Effectiveness (%)"], color=['blue', 'green', 'orange'])
-        ax.set_title("Effectiveness of Recommended Treatments")
-        ax.set_xlabel("Treatment")
-        ax.set_ylabel("Effectiveness (%)")
-        st.pyplot(fig)
-
-        # Downloadable Report
-        st.download_button(
-            label="Download Recommendations",
-            data="Your personalized recommendations: " + df.to_csv(index=False),
-            file_name="recommendations.csv",
-            mime="text/csv"
-        )
-
-    # About Page
-    elif menu == "About":
-        st.title("About the App")
-        st.write("""
-        This AI-powered system leverages advanced machine learning models to analyze patient data and suggest personalized treatment plans. Our goal is to assist healthcare providers and patients in making informed decisions.
-        """)
-        st.image("team.jpg", caption="Our Development Team", use_column_width=True)
-
-    # Chatbot Page
-    elif menu == "Chatbot":
-        st.title("AI Chatbot Assistant")
-        st.write("Ask your health-related questions:")
-        with st.form("Chatbot Form"):
-            query = st.text_input("Type your query here:")
-            submit_query = st.form_submit_button("Ask")
-
-        if submit_query:
-            # Simulated chatbot response
-            st.write("AI Response: Thank you for your question. We're here to help!")
